@@ -1,63 +1,76 @@
 <template>
   <div>
     <h1>Carte des villes</h1>
-    <mapbox
-        :map-options="{
-        style: 'https://maps.hotentic.com/styles/isere/style.json',
-        center: [6.0925617, 45.8910906],
-        zoom: 10,
-      }"
-        @map-load="loaded"
-    />
+    <div id="map" />
   </div>
 </template>
 
 <script>
-  import axios from "axios";
-  import Mapbox from 'mapbox-gl-vue';
+import axios from "axios";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { onMounted } from "vue";
 
-  export default {
-    name: 'CitiesMap',
-    components: {
-      Mapbox
-    },
-    data() {
-      return {
-        cities: []
-      }
-    },
-    methods: {
-      loadCities(citiesData) {
-        this.cities = [];
-        for (const {name, coord: {lat, lon}, weather: [{description: weather, icon: icon}], main: {temp: temperature}, dt: updatedAt} of citiesData) {
-          this.cities.push({name, lat, lon, weather, icon, temperature, updatedAt: new Date(updatedAt * 1000)});
-        }
-      },
-      loaded(map) {
-        const mapboxgl = require('mapbox-gl/dist/mapbox-gl');
+export default {
+  name: "CitiesMap",
+  data() {
+    return {
+      cities: [],
+    };
+  },
+  setup() {
+    onMounted(() => {
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoibGluZGFwaGkiLCJhIjoiY2tsOTY2dGhjMDVvcjJ2bzg2aTUyeWMwMyJ9.kQWUM4Qqj2akwxKa_p-RBQ";
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/light-v9",
+      });
+      map.on("load", () => {
+        let cities = [];
+        axios
+          .get(
+            `https://api.openweathermap.org/data/2.5/find?lat=${process.env.VUE_APP_DEFAULT_LATITUDE}&lon=${process.env.VUE_APP_DEFAULT_LONGITUDE}&cnt=20&cluster=yes&lang=fr&units=metric&APPID=${process.env.VUE_APP_OW_APP_ID}`
+          )
+          .then(function(resp) {
+            for (const {
+              name,
+              coord: { lat, lon },
+              weather: [{ description: weather, icon: icon }],
+              main: { temp: temperature },
+              dt: updatedAt,
+            } of resp.data.list) {
+              cities.push({
+                name,
+                lat,
+                lon,
+                weather,
+                icon,
+                temperature,
+                updatedAt: new Date(updatedAt * 1000)
+              });
+            }
 
-        this.cities.forEach(function(city) {
-          let el = document.createElement('img');
-          el.src = `https://openweathermap.org/img/wn/${city.icon}@2x.png`;
-          el.classList.add('marker');
-          el.title = `${city.name} - ${city.temperature}°C`;
+            cities.forEach(function(city) {
+              let el = document.createElement("img");
+              el.src = `https://openweathermap.org/img/wn/${city.icon}@2x.png`;
+              el.classList.add("marker");
+              el.title = `${city.name} - ${city.temperature}°C`;
 
-          new mapboxgl.Marker(el)
-            .setLngLat([city.lon, city.lat])
-            .addTo(map);
-        });
-      },
-    },
-    mounted() {
-      axios.get(`https://api.openweathermap.org/data/2.5/find?lat=${process.env.VUE_APP_DEFAULT_LATITUDE}&lon=${process.env.VUE_APP_DEFAULT_LONGITUDE}&cnt=20&cluster=yes&lang=fr&units=metric&APPID=${process.env.VUE_APP_OW_APP_ID}`)
-        .then((resp) => this.loadCities(resp.data.list));
-    }
-  }
+              new mapboxgl.Marker(el)
+                .setLngLat([city.lon, city.lat])
+                .addTo(map);
+            });
+          });
+      });
+    });
+    return {};
+  },
+};
 </script>
 
 <style scoped>
-  h1 {
-    margin: 40px 0 0;
-  }
-
+h1 {
+  margin: 40px 0 0;
+}
 </style>
