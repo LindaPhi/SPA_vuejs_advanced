@@ -24,7 +24,9 @@ export default {
         "pk.eyJ1IjoibGluZGFwaGkiLCJhIjoiY2tsOTY2dGhjMDVvcjJ2bzg2aTUyeWMwMyJ9.kQWUM4Qqj2akwxKa_p-RBQ";
       const map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/mapbox/light-v9",
+        style: 'https://maps.hotentic.com/styles/isere/style.json',
+        center: [process.env.VUE_APP_DEFAULT_LONGITUDE, process.env.VUE_APP_DEFAULT_LATITUDE],
+        zoom: 12,
       });
       map.on("load", () => {
         let cities = [];
