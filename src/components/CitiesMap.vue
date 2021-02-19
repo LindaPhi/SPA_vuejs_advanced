@@ -5,19 +5,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import axios from "axios";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { onMounted } from "vue";
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: "CitiesMap",
-  data() {
-    return {
-      cities: [],
-    };
-  },
   setup() {
     onMounted(() => {
       mapboxgl.accessToken =
@@ -29,36 +25,20 @@ export default {
         zoom: 12,
       });
       map.on("load", () => {
-        let cities = [];
+        const mapboxgl = require('mapbox-gl/dist/mapbox-gl');
+        let cities : any[] = [];
         axios
           .get(
             `https://api.openweathermap.org/data/2.5/find?lat=${process.env.VUE_APP_DEFAULT_LATITUDE}&lon=${process.env.VUE_APP_DEFAULT_LONGITUDE}&cnt=20&cluster=yes&lang=fr&units=metric&APPID=${process.env.VUE_APP_OW_APP_ID}`
           )
-          .then(function(resp) {
-            for (const {
-              name,
-              coord: { lat, lon },
-              weather: [{ description: weather, icon: icon }],
-              main: { temp: temperature },
-              dt: updatedAt,
-            } of resp.data.list) {
-              cities.push({
-                name,
-                lat,
-                lon,
-                weather,
-                icon,
-                temperature,
-                updatedAt: new Date(updatedAt * 1000)
-              });
-            }
-
-            cities.forEach(function(city) {
+          .then(resp => {
+            for (const { name, coord: { lat, lon }, weather: [{ description: weather, icon: icon }], main:  { temp: temperature }, dt: updatedAt, } of resp.data.list) {
+                cities.push({ name, lat, lon, weather, icon, temperature, updatedAt: new Date(updatedAt * 1000) });}
+            cities.forEach(city => {
               let el = document.createElement("img");
               el.src = `https://openweathermap.org/img/wn/${city.icon}@2x.png`;
               el.classList.add("marker");
               el.title = `${city.name} - ${city.temperature}°C`;
-
               new mapboxgl.Marker(el)
                 .setLngLat([city.lon, city.lat])
                 .addTo(map);
@@ -68,7 +48,7 @@ export default {
     });
     return {};
   },
-};
+});
 </script>
 
 <style scoped>
