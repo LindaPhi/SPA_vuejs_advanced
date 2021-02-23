@@ -12,14 +12,8 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import CitiesList from './components/CitiesList.vue';
+import { Vue } from 'vue-class-component';
 
-@Options({
-  components: {
-    CitiesList,
-  },
-})
 export default class App extends Vue {}
 </script>
 
