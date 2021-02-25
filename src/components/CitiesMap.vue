@@ -17,13 +17,8 @@
 
 <script>
 import { defineComponent } from 'vue';
-import {
-    LMap,
-    LTileLayer,
-    LMarker,
-    LIcon,
-  } from "@vue-leaflet/vue-leaflet";
-  import "leaflet/dist/leaflet.css";
+import { LMap, LTileLayer, LMarker, LIcon, } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
 
 export default defineComponent({
   name: "CitiesMap",
@@ -34,35 +29,23 @@ export default defineComponent({
       LIcon,
     },
   data() {
-      const iconWidth = 50;
-      const iconHeight = 50;
       return {
         zoom: 12,
-        iconWidth,
-        iconHeight,
+        
       }
     },
   computed: {
+      
       iconSize() {
-        return [this.iconWidth, this.iconHeight];
+        return [50, 50];
       },
       cities(){
         return this.$store.state.cities
       }
     },
-    // methods: {
-    //   loadCities(citiesData) {
-    //     this.cities = [];
-    //     for (const {name, coord: {lat, lon}, weather: [{description: weather, icon: icon}], main: {temp: temperature}, dt: updatedAt} of citiesData) {
-    //       this.cities.push({name, lat, lon, weather, icon, temperature, updatedAt: new Date(updatedAt * 1000)});
-    //     }
-    //   },
-    // },
-    mounted() {
+  mounted() {
       this.$store.dispatch("getCities");
-      // axios.get(`https://api.openweathermap.org/data/2.5/find?lat=${process.env.VUE_APP_DEFAULT_LATITUDE}&lon=${process.env.VUE_APP_DEFAULT_LONGITUDE}&cnt=20&cluster=yes&lang=fr&units=metric&APPID=${process.env.VUE_APP_OW_APP_ID}`)
-      //   .then((resp) => this.loadCities(resp.data.list));
-    },
+  },
 });
 </script>
 
